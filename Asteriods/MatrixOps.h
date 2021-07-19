@@ -1,5 +1,4 @@
 #include <vector>
-#include "Point.h"
 #include <cmath>
 
 class MatrixOps {

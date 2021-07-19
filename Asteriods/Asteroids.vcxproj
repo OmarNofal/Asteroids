@@ -153,7 +153,6 @@
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="MatrixOps.h" />
     <ClInclude Include="olcConsoleGameEngine.h" />
-    <ClInclude Include="Point.h" />
     <ClInclude Include="Ship.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>

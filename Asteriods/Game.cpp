@@ -6,9 +6,9 @@
 #include <cmath>
 #define OLC_PGE_APPLICATION
 
+#include "Globals.h"
 #include "olcPixelGameEngine.h"
 #include "Ship.h"
-#include "Point.h"
 #include "MatrixOps.h"
 #include "Bullet.h"
 #include "Asteriod.h"
@@ -29,9 +29,9 @@ private:
 	
 	void DrawShip() {
 		// Midpoint
-		olc::vi2d head(ship.getHead());
-		olc::vi2d left(ship.getLeft());
-		olc::vi2d right(ship.getRight());
+		Point head(ship.getHead());
+		Point left(ship.getLeft());
+		Point right(ship.getRight());
 
 		DrawLine(head, left);
 		DrawLine(left, right);

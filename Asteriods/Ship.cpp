@@ -1,5 +1,5 @@
 #include "Ship.h"
-
+#include "Globals.h"
 #define _USE_MATH_DEFINES
 #include <cmath>
 
@@ -30,21 +30,21 @@ float Ship::getVelocityMagnitude() const {
 };
 
 olc::vi2d Ship::getHead() const {
-	return olc::vi2d(
+	return Point(
 		posx + height * sin(rotation), 
 		posy + height * cos(rotation)
 	);
 };
 
 olc::vi2d Ship::getLeft() const {
-	return olc::vi2d(
+	return Point(
 		posx + width * sin(rotation - 120 * M_PI / 180),
 		posy + width * cos(rotation - 120 * M_PI / 180)
 	);
 };
 
 olc::vi2d Ship::getRight() const {
-	return olc::vi2d(
+	return Point(
 		posx + width * sin(rotation + 120 * M_PI / 180),
 		posy + width * cos(rotation + 120 * M_PI / 180)
 	);
