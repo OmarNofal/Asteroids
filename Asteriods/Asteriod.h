@@ -13,7 +13,7 @@ class Asteriod {
 
 public:
 	
-	std::vector<olc::vi2d> points;
+	std::vector<std::pair<float, float>> points; // Points stored relative to the center
 
 	int numberOfPoints;
 
@@ -35,7 +35,7 @@ public:
 		float startY = 0.0f
 	);
 
-	void updatePoints(float newX, float newY, float);
+	void updatePoints(float newX, float newY, float elapsedTime);
 
 };
 

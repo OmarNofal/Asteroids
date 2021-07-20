@@ -17,30 +17,27 @@ currentX(startX),
 currentY(startY)
 
 {
+	
+	vx = RandomFloat(-30.0, 30.0);
+	vy = RandomFloat(-30.0, 30.0);
+
+	printf("Vx: %f, Vy: %f\n", vx, vy);
+
 	for (int i = 0; i < numberOfPoints; ++i) {
 		int pointRadius = RandomFloat(radius - 0.4, radius + 0.4);
 		float angle = 2 * M_PI * i / numberOfPoints;
-		float x = cos(angle) * pointRadius;
-		float y = sin(angle) * pointRadius * -1;
+		float x = -currentX + cos(angle) * pointRadius;
+		float y = -currentY + sin(angle) * pointRadius * -1;
 
-		points.push_back(olc::vi2d(startX + x, startY + y));
+		points.push_back(std::pair<float,float>(x, y));
 	}
 };
 
 
 void Asteriod::updatePoints(float newX, float newY, float elapsedTime) {
 	
-	std::transform(
-		points.begin(),
-		points.end(),
-		points.begin(),
-		[this, newX, newY, elapsedTime](olc::vi2d point) {
-			point.x += 100* elapsedTime + 2;
-			point.y += 100* elapsedTime + 2;
-			return olc::vi2d(point);
-		}
-	);
-	currentX = newX;
-	currentY = newY;
+
+	currentX += vx * elapsedTime;
+	currentY += vy * elapsedTime;
 	
 }

@@ -22,7 +22,7 @@ private:
 
 public:
 	Game(): ship() {
-		sAppName = "Asteriods";
+		sAppName = "Asteroids";
 	}
 
 private:
@@ -45,7 +45,7 @@ private:
 		ship.posy = ScreenHeight() / 2;
 
 		CreateRandomAsteriods();
-
+		
  		return true;
 	}
 
@@ -106,16 +106,26 @@ private:
 
 	void DrawAsteriods(float elapsedTime) {
 		for (Asteriod& a : asteriods) {
-			float newX = a.currentX + a.vx * elapsedTime;
-			float newY = a.currentY + a.vy * elapsedTime;
+			a.updatePoints(0, 0, elapsedTime);
+			WrapCoordinates(a.currentX, a.currentY, a.currentX, a.currentY);
+			for (size_t i = 0; i < a.points.size(); ++i) {
+				float x1 = a.currentX + a.points[i].first; // get absolute position
+				float y1 = a.currentY + a.points[i].second;
 
-			a.updatePoints(newX, newY, elapsedTime);
-			for (int i = 0; i < a.points.size(); ++i) {
+				Point p1(x1, y1);
 				if (i == a.points.size() - 1) {
-					DrawLine(a.points[0], a.points[i]);
+					float x2 = a.currentX + a.points[0].first;
+					float y2 = a.currentY + a.points[0].second;
+					Point p2(x2, y2);
+					DrawLine(p1, p2);
 					break;
 				}
-				DrawLine(a.points[i], a.points[i + 1]);
+
+				float x2 = a.currentX + a.points[i + 1].first;
+				float y2 = a.currentY + a.points[i + 1].second;
+
+				Point p2(x2, y2);
+				DrawLine(p1, p2);
 			}
 		}
 	}
@@ -139,8 +149,8 @@ private:
 		if (iy > (float) ScreenHeight()) oy = -(float)ScreenHeight() + iy;
 	}
 
-	void CreateRandomAsteriods() {
-		for (int i = 0; i < 4; ++i) {
+	void CreateRandomAsteriods(int num = 4) {
+		for (int i = 0; i < num; ++i) {
 			float x = rand() % ScreenWidth();
 			float y = rand() % ScreenHeight();
 
@@ -150,8 +160,7 @@ private:
 			float radius = rand() % 20 + 10;
 
 			Asteriod a{ 20, radius, x, y };
-			a.vx = vx;
-			a.vy = vy;
+			
 			asteriods.push_back(a);
 		}
 	}
