@@ -1,17 +1,24 @@
+
+#include "Game.h"
+
 #ifndef GAME_STATE
 #define GAME_STATE
 
+class Game;
 
 class GameState {
 
 public:
 
-	virtual void Init() = 0;
-	virtual void Cleanup() = 0;
+	virtual void Init(Game* g) = 0;
+	virtual void Cleanup(Game* g) = 0;
 
-	virtual void HandleEvents(Game) = 0;
-	virtual void Update() = 0;
-	virtual void Draw() = 0;
+	virtual void HandleEvents(Game* g, float elapsedTime) = 0;
+	virtual void Update(Game* g, float elapsedTime) = 0;
+	virtual void Draw(Game* g, float elapsedTime) = 0;
+
+	virtual void Pause() = 0;
+	virtual void Resume() = 0;
 
 };
 
