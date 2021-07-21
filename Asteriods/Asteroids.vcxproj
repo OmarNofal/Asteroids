@@ -144,6 +144,7 @@
     <ClCompile Include="Asteriod.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="olcPixelGameEngine.h" />
     <ClCompile Include="Ship.cpp" />
     <ClCompile Include="Solution.cpp" />
@@ -151,6 +152,9 @@
   <ItemGroup>
     <ClInclude Include="Asteriod.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="GameState.h" />
+    <ClInclude Include="MainGame.h" />
     <ClInclude Include="MatrixOps.h" />
     <ClInclude Include="olcConsoleGameEngine.h" />
     <ClInclude Include="Ship.h" />
