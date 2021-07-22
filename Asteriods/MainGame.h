@@ -2,6 +2,7 @@
 
 #ifndef MAIN_GAME
 #define MAIN_GAME
+
 #include "Globals.h"
 #include "GameState.h"
 #include "Ship.h"
@@ -12,7 +13,7 @@
 
 class MainGame : public GameState {
 
-private:
+private: // members
 	Ship ship;	
 	std::vector<Bullet> bullets;
 	std::vector<Asteriod> asteriods;
@@ -30,13 +31,13 @@ public:
 	void Pause();
 	void Resume();
 
-	void CreateRandomAsteroids(Game* g, int num = 4);
-
+private: // methods
+	void CheckAsteroidsCollision(Game* g);
 	void DrawShip(Game* g, float elapsedTime);
 	void DrawBullets(Game* g, float elpasedTime);
 	void DrawAsteriods(Game* g, float elapsedTime);
-
-	void CheckAsteroidsCollision();
+	void CreateRandomAsteroids(Game* g, int num = 4);
+	void HandleShipCollision(Game* g);
 };
 
 

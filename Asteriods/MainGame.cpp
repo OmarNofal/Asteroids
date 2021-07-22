@@ -1,5 +1,7 @@
 #include "MainGame.h"
 #include "Globals.h"
+#include "Util.h"
+#include <iostream>
 #include <time.h>
 
 
@@ -9,6 +11,7 @@ MainGame::MainGame() {
 
 void MainGame::Init(Game* g) {
 	srand(time(NULL));
+
 	ship.posx = g->ScreenWidth() / 2;
 	ship.posy = g->ScreenHeight() / 2;
 	
@@ -17,9 +20,12 @@ void MainGame::Init(Game* g) {
 
 void MainGame::Update(Game* g, float elapsedTime) {
 	g->WrapCoordinates(ship.posx, ship.posy, ship.posx, ship.posy);
+	for (Asteriod& a : asteriods) {
+		g->WrapCoordinates(a.currentX, a.currentY, a.currentX, a.currentY);
+	}
 	ship.move(elapsedTime);
 	
-	CheckAsteroidsCollision();
+	CheckAsteroidsCollision(g);
 };
 
 void MainGame::Draw(Game* g, float elapsedTime) {
@@ -36,16 +42,16 @@ void MainGame::HandleEvents(Game* g, float elapsedTime) {
 		Bullet b(
 			pos.x, 
 			pos.y, 
-			(60) * sin(ship.rotation), 
-			(60) * cos(ship.rotation)
+			(140) * sin(ship.rotation), 
+			(140) * cos(ship.rotation)
 		);
 		bullets.push_back(b);
 	}
 	if (g->GetKey(olc::Key::LEFT).bHeld) {
-		ship.rotation += 70.0f * ship.rotationSpeed * elapsedTime;
+		ship.rotation += 140.0f * ship.rotationSpeed * elapsedTime;
 	}
 	else if (g->GetKey(olc::Key::RIGHT).bHeld) {
-		ship.rotation -= 70.0f * ship.rotationSpeed * elapsedTime;
+		ship.rotation -= 140.0f * ship.rotationSpeed * elapsedTime;
 	}
 		
 	if (g->GetKey(olc::Key::Z).bPressed) {
@@ -54,6 +60,9 @@ void MainGame::HandleEvents(Game* g, float elapsedTime) {
 				
 	if (g->GetKey(olc::Key::UP).bHeld) {
 		ship.accelerate(elapsedTime);
+	}
+	else {
+		ship.decelerate(elapsedTime);
 	}
 };
 
@@ -78,14 +87,15 @@ void MainGame::DrawShip(Game* g, float elapsedTime) {
 
 
 void MainGame::CreateRandomAsteroids(Game* g, int num) {
+	srand(time(NULL));
 	for (int i = 0; i < num; ++i) {
 		float x = rand() % g->ScreenWidth();
 		float y = rand() % g->ScreenHeight();
 
-		float vx = rand() % 10 + 20;
-		float vy = rand() % 10 + 20;
+		float vx = util::RandomFloat(-20, 20);
+		float vy = util::RandomFloat(-20, 20);
 
-		float radius = rand() % 20 + 10;
+		float radius = util::RandomFloat(10, 30);
 
 		Asteriod a{ 20, radius, x, y };
 
@@ -113,7 +123,8 @@ void MainGame::DrawBullets(Game* g, float elapsedTime) {
 void MainGame::DrawAsteriods(Game* g, float elapsedTime) {
 	for (Asteriod& a : asteriods) {
 		a.updatePoints(0, 0, elapsedTime);
-		g->WrapCoordinates(a.currentX, a.currentY, a.currentX, a.currentY);
+		g->Draw(a.currentX, a.currentY);
+		//g->WrapCoordinates(a.currentX, a.currentY, a.currentX, a.currentY);
 		for (size_t i = 0; i < a.points.size(); ++i) {
 			float x1 = a.currentX + a.points[i].first; // get absolute position
 			float y1 = a.currentY + a.points[i].second;
@@ -137,6 +148,38 @@ void MainGame::DrawAsteriods(Game* g, float elapsedTime) {
 }
 
 
-void MainGame::CheckAsteroidsCollision() {
+void MainGame::CheckAsteroidsCollision(Game* g) {
+	Point shipHead(ship.getHead());
+	Point shipRight(ship.getRight());
+	Point shipLeft(ship.getLeft());
+	
+	float shipHeadX;
+	float shipHeadY;
 
+	float shipRightX;
+	float shipRightY;
+
+	float shipLeftX;
+	float shipLeftY;
+
+	g->WrapCoordinates(shipHead.x, shipHead.y, shipHeadX, shipHeadY);
+	g->WrapCoordinates(shipRight.x, shipRight.y, shipRightX, shipRightY);
+	g->WrapCoordinates(shipLeft.x, shipLeft.y, shipLeftX, shipLeftY);
+
+	for (Asteriod& a : asteriods) {
+		bool isShipInsideAsteroid =
+			util::IsPointInsideCircle(shipHeadX, shipHeadY, a.currentX, a.currentY, a.radius)
+			||
+			util::IsPointInsideCircle(shipRightX, shipRightY, a.currentX, a.currentY, a.radius)
+			||
+			util::IsPointInsideCircle(shipLeftX, shipLeftY, a.currentX, a.currentY, a.radius);
+
+		if (isShipInsideAsteroid)
+			HandleShipCollision(g);
+	}
+
+};
+
+void MainGame::HandleShipCollision(Game* g) {
+	std::cout << "Collision detected\n";
 }
