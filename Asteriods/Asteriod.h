@@ -9,7 +9,7 @@
 #ifndef ASTERIOD_H
 #define ASTERIOD_H
 
-class Asteriod {
+class Asteroid {
 
 public:
 	
@@ -28,7 +28,7 @@ public:
 	float vx;
 	float vy;
 
-	Asteriod(
+	Asteroid(
 		int numberOfPoints = 20, 
 		float radius = 10.0f,
 		float startX = 0.0f,

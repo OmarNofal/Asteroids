@@ -3,7 +3,7 @@
 #include <ctime>
 
 
-Asteriod::Asteriod(
+Asteroid::Asteroid(
 	int numberOfPoints,
 	float radius,
 	float startX,
@@ -31,7 +31,7 @@ currentY(startY)
 };
 
 
-void Asteriod::updatePoints(float newX, float newY, float elapsedTime) {
+void Asteroid::updatePoints(float newX, float newY, float elapsedTime) {
 	
 
 	currentX += vx * elapsedTime;
