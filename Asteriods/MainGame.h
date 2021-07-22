@@ -16,7 +16,10 @@ class MainGame : public GameState {
 private: // members
 	Ship ship;	
 	std::vector<Bullet> bullets;
-	std::vector<Asteriod> asteriods;
+	std::vector<Asteroid> asteroids;
+	olc::Sprite* hearts = nullptr;
+	int currentLives = 5;
+	int maxLives = 5;
 
 public:
 	MainGame();
@@ -38,6 +41,10 @@ private: // methods
 	void DrawAsteriods(Game* g, float elapsedTime);
 	void CreateRandomAsteroids(Game* g, int num = 4);
 	void HandleShipCollision(Game* g);
+	void CheckAsteroidCollision(size_t index);
+	void HandleAsteroidCollision(size_t index);
+	void DrawHearts(Game* g);
+	void ResetShip(Game* g);
 };
 
 

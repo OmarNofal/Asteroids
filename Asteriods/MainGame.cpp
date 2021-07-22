@@ -14,13 +14,16 @@ void MainGame::Init(Game* g) {
 
 	ship.posx = g->ScreenWidth() / 2;
 	ship.posy = g->ScreenHeight() / 2;
-	
+
+	// Load sprites
+	hearts = new olc::Sprite("./data/HeartSprite.png");
+
 	CreateRandomAsteroids(g);
 };
 
 void MainGame::Update(Game* g, float elapsedTime) {
 	g->WrapCoordinates(ship.posx, ship.posy, ship.posx, ship.posy);
-	for (Asteriod& a : asteriods) {
+	for (Asteroid& a : asteroids) {
 		g->WrapCoordinates(a.currentX, a.currentY, a.currentX, a.currentY);
 	}
 	ship.move(elapsedTime);
@@ -29,10 +32,11 @@ void MainGame::Update(Game* g, float elapsedTime) {
 };
 
 void MainGame::Draw(Game* g, float elapsedTime) {
-	g->Clear(olc::BLACK);
+	g->Clear(olc::VERY_DARK_BLUE);
 	DrawShip(g, elapsedTime);
 	DrawBullets(g, elapsedTime);
 	DrawAsteriods(g, elapsedTime);
+	DrawHearts(g);
 };
 
 void MainGame::HandleEvents(Game* g, float elapsedTime) {
@@ -97,9 +101,9 @@ void MainGame::CreateRandomAsteroids(Game* g, int num) {
 
 		float radius = util::RandomFloat(10, 30);
 
-		Asteriod a{ 20, radius, x, y };
+		Asteroid a{ 20, radius, x, y };
 
-		asteriods.push_back(a);
+		asteroids.push_back(a);
 	}
 };
 
@@ -121,7 +125,7 @@ void MainGame::DrawBullets(Game* g, float elapsedTime) {
 }
 
 void MainGame::DrawAsteriods(Game* g, float elapsedTime) {
-	for (Asteriod& a : asteriods) {
+	for (Asteroid& a : asteroids) {
 		a.updatePoints(0, 0, elapsedTime);
 		g->Draw(a.currentX, a.currentY);
 		//g->WrapCoordinates(a.currentX, a.currentY, a.currentX, a.currentY);
@@ -166,7 +170,8 @@ void MainGame::CheckAsteroidsCollision(Game* g) {
 	g->WrapCoordinates(shipRight.x, shipRight.y, shipRightX, shipRightY);
 	g->WrapCoordinates(shipLeft.x, shipLeft.y, shipLeftX, shipLeftY);
 
-	for (Asteriod& a : asteriods) {
+	for (size_t i = 0; i < asteroids.size(); i++) {
+		Asteroid& a = asteroids[i];
 		bool isShipInsideAsteroid =
 			util::IsPointInsideCircle(shipHeadX, shipHeadY, a.currentX, a.currentY, a.radius)
 			||
@@ -176,10 +181,74 @@ void MainGame::CheckAsteroidsCollision(Game* g) {
 
 		if (isShipInsideAsteroid)
 			HandleShipCollision(g);
+
+		CheckAsteroidCollision(i);
 	}
 
 };
 
 void MainGame::HandleShipCollision(Game* g) {
-	std::cout << "Collision detected\n";
+	currentLives -= 1;
+	ResetShip(g);
+}
+
+void MainGame::CheckAsteroidCollision(size_t a_index) {
+	for (size_t i = 0; i < bullets.size(); i++) {
+		Bullet& b = bullets[i];
+		Asteroid& a = asteroids[a_index];
+		bool bulletInAsteroid =
+			util::IsPointInsideCircle(b.posx, b.posy, a.currentX, a.currentY, a.radius);
+		if (bulletInAsteroid) {
+			HandleAsteroidCollision(a_index);
+			bullets.erase(bullets.begin() + i);
+			return;
+		}
+	}
+}
+
+void MainGame::HandleAsteroidCollision(size_t a_index) {
+	Asteroid& a = asteroids[a_index];
+	float x = a.currentX;
+	float y = a.currentY;
+	float radius = a.radius;
+
+	if (radius > 15.0f) {
+		float minRadius = radius / 3.0f;
+		float maxRadius = radius / 2.0f;
+		float n1_radius = util::RandomFloat(minRadius, maxRadius);
+		float n2_radius = util::RandomFloat(minRadius, maxRadius);
+		Asteroid n1{20, n1_radius, x, y};
+		Asteroid n2{20, n2_radius, x, y};
+		asteroids.push_back(n1);
+		asteroids.push_back(n2);
+	}
+	asteroids.erase(asteroids.begin() + a_index);
+}
+
+
+void MainGame::DrawHearts(Game* g) {
+
+	g->SetPixelMode(olc::Pixel::MASK); // for transparency
+
+	int lostLives = maxLives - currentLives;
+	
+	int x_offset = 20; // offset from right of the screen
+	int32_t y_pos = 5;
+
+	for (int i = 1; i < maxLives + 1; i++) {
+		int32_t x_pos = g->ScreenWidth() - x_offset;
+		x_offset += 16;
+		if (i < lostLives) { // drawing dead heart
+			g->DrawPartialSprite(Point(x_pos, y_pos), hearts, Point(0, 0), Point(16, 16));
+		}
+		else { // drawing healthy heart
+			g->DrawPartialSprite(Point(x_pos, y_pos), hearts, Point(16, 0), Point(16, 16));
+		}
+	}
+
+	g->SetPixelMode(olc::Pixel::NORMAL);
+}
+
+void MainGame::ResetShip(Game* g) {
+
 }
