@@ -1,5 +1,4 @@
 #include "Asteriod.h"
-#include "Util.h"
 #include <cstdlib>
 #include <ctime>
 
@@ -18,16 +17,14 @@ currentY(startY)
 
 {
 	
-	vx = RandomFloat(-30.0, 30.0);
-	vy = RandomFloat(-30.0, 30.0);
-
-	printf("Vx: %f, Vy: %f\n", vx, vy);
+	vx = util::RandomFloat(-30.0, 30.0);
+	vy = util::RandomFloat(-30.0, 30.0);
 
 	for (int i = 0; i < numberOfPoints; ++i) {
-		int pointRadius = RandomFloat(radius - 0.4, radius + 0.4);
+		int pointRadius = util::RandomFloat(radius - 0.4, radius + 0.4);
 		float angle = 2 * M_PI * i / numberOfPoints;
-		float x = -currentX + cos(angle) * pointRadius;
-		float y = -currentY + sin(angle) * pointRadius * -1;
+		float x =  cos(angle) * pointRadius;
+		float y =  sin(angle) * pointRadius * -1;
 
 		points.push_back(std::pair<float,float>(x, y));
 	}
