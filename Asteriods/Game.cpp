@@ -15,14 +15,12 @@
 
 Game::Game() {
 	sAppName = "Asteroids";
-	MainGame* m = new MainGame();
-	PushState(m);
-	m->Init(this);
 }
 
 bool Game::OnUserCreate() {
 	// Create main menu;
-
+	MainGame* m = new MainGame();
+	PushState(m);
 	return true;
 }
 
@@ -49,6 +47,7 @@ void Game::PushState(GameState* s) {
 void Game::PopState() {
 	if (!states.empty()) {
 		states.back()->Cleanup(this);
+		delete states.back();
 		states.pop_back();
 	}
 
@@ -72,40 +71,25 @@ void Game::ChangeState(GameState* s) {
 }
 
 
-//	
-//
-//	bool OnUserUpdate(float elapsedTime) override {
-//		Clear(olc::BLACK);
-//		DrawShip();
-//		ship.move(elapsedTime);
-//		
-//		
-//
-//		return true;
-//	}
-//
-//
-//	
-	bool Game::Draw(int32_t x, int32_t y, olc::Pixel p) {
-		float xf = x;
-		float yf = y;
-		WrapCoordinates(xf, yf, xf, yf);
-		return olc::PixelGameEngine::Draw(xf, yf, p);
-	}
+bool Game::Draw(int32_t x, int32_t y, olc::Pixel p) {
+	float xf = x;
+	float yf = y;
+	WrapCoordinates(xf, yf, xf, yf);
+	return olc::PixelGameEngine::Draw(xf, yf, p);
+}
 
-	/*
-		Wrap a point so it stays in window range
-	*/
-	void Game::WrapCoordinates(float ix, float iy, float& ox, float& oy) {
-		ox = ix;
-		oy = iy;
-		if (ix < 0.0f) ox = ScreenWidth() + ix;
-		if (ix > (float)ScreenWidth()) ox = -(float)ScreenWidth() + ix;
-		if (iy < 0.0f) oy = ScreenHeight() + iy;
-		if (iy > (float) ScreenHeight()) oy = -(float)ScreenHeight() + iy;
-	}
+/*
+	Wrap a point so it stays in window range
+*/
+void Game::WrapCoordinates(float ix, float iy, float& ox, float& oy) {
+	ox = ix;
+	oy = iy;
+	if (ix < 0.0f) ox = ScreenWidth() + ix;
+	if (ix > (float)ScreenWidth()) ox = -(float)ScreenWidth() + ix;
+	if (iy < 0.0f) oy = ScreenHeight() + iy;
+	if (iy > (float) ScreenHeight()) oy = -(float)ScreenHeight() + iy;
+}
 
-//};
 
 int main() {
 
