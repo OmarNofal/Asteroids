@@ -15,14 +15,14 @@ void Ship::move(float elapsedTime) {
 }
 
 void Ship::accelerate(float elapsedTime) {
-	vx += 20.0f * sin(rotation) * elapsedTime;
-	vy += 20.0f * cos(rotation) * elapsedTime;
+	vx += 240.0f * sin(rotation) * elapsedTime;
+	vy += 240.0f * cos(rotation) * elapsedTime;
+}
 
-	/*if (vx > 70.0f) { vx = 70.0f; }
-	else if (vx < -70.0f) { vx = -70.f; }
-	if (vy > 70.0f) { vy = 70.0f; }
-	else if (vy < -70.0f) { vy = -70.f; }*/ // Limiting speed code
-
+void Ship::decelerate(float elapsedTime) { // Drag. f el fada2 ezay? m3rf4.¯\_(^^)_/¯
+	if (abs(getVelocityMagnitude()) < 0.01) return;
+	vx += -0.7 * vx * elapsedTime;
+	vy += -0.7 * vy * elapsedTime;
 }
 
 float Ship::getVelocityMagnitude() const {

@@ -14,7 +14,7 @@ class Ship {
 
 public:
 	
-	const float rotationSpeed = .02;
+	const float rotationSpeed = .03;
 	
 	const int height = 10;
 	const int width = 5;
@@ -31,6 +31,7 @@ public:
 
 	void move(float elapsedTime);
 	void accelerate(float elapsedTime);
+	void decelerate(float elapsedTime);
 
 	float getVelocityMagnitude() const;
 
