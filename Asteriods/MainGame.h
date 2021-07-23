@@ -17,9 +17,17 @@ private: // members
 	Ship ship;	
 	std::vector<Bullet> bullets;
 	std::vector<Asteroid> asteroids;
+
 	olc::Sprite* hearts = nullptr;
+
 	int currentLives = 5;
 	int maxLives = 5;
+
+	bool cooldown = true;
+	double cooldownTime = 0.0f; // time since cooldown
+
+	double temperature = 0.0f;
+	bool overheated = false;
 
 public:
 	MainGame();
@@ -45,6 +53,7 @@ private: // methods
 	void HandleAsteroidCollision(size_t index);
 	void DrawHearts(Game* g);
 	void ResetShip(Game* g);
+	void DrawTemperature(Game* g, float elaspedTime);
 };
 
 

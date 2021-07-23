@@ -28,6 +28,21 @@ void MainGame::Update(Game* g, float elapsedTime) {
 	}
 	ship.move(elapsedTime);
 	
+	temperature -= 0.2 * elapsedTime;
+	if (temperature < 0.0f) {
+		overheated = false;
+		temperature = 0.0f;
+	}
+
+	if (!cooldown) cooldownTime = 0.0f;
+	else {
+		cooldownTime += elapsedTime;
+		if (cooldownTime > 3.0f) {
+			cooldown = false;
+			cooldownTime = 0.0f;
+		}
+	}
+
 	CheckAsteroidsCollision(g);
 };
 
@@ -36,11 +51,13 @@ void MainGame::Draw(Game* g, float elapsedTime) {
 	DrawShip(g, elapsedTime);
 	DrawBullets(g, elapsedTime);
 	DrawAsteriods(g, elapsedTime);
+	DrawTemperature(g, elapsedTime);
 	DrawHearts(g);
 };
 
 void MainGame::HandleEvents(Game* g, float elapsedTime) {
-	if (g->GetKey(olc::Key::SPACE).bPressed) {
+	if (g->GetKey(olc::Key::SPACE).bPressed && !overheated) {
+		
 		auto pos(ship.getHead());
 		auto shipVelocity(ship.getVelocityMagnitude());
 		Bullet b(
@@ -50,6 +67,8 @@ void MainGame::HandleEvents(Game* g, float elapsedTime) {
 			(140) * cos(ship.rotation)
 		);
 		bullets.push_back(b);
+		temperature += 0.25;
+		if (temperature >= 1.0f) overheated = true;
 	}
 	if (g->GetKey(olc::Key::LEFT).bHeld) {
 		ship.rotation += 140.0f * ship.rotationSpeed * elapsedTime;
@@ -79,6 +98,12 @@ void MainGame::Pause() {
 void MainGame::Resume() {};
 
 void MainGame::DrawShip(Game* g, float elapsedTime) {
+
+	// cooldown animation
+	int cooldownInt = cooldownTime;
+	float rangeStart = (float)cooldownInt + 0.5;
+	if (cooldown && cooldownTime < rangeStart) return;
+
 	// Midpoint
 	Point head(ship.getHead());
 	Point left(ship.getLeft());
@@ -89,6 +114,29 @@ void MainGame::DrawShip(Game* g, float elapsedTime) {
 	g->DrawLine(right, head);
 };
 
+void MainGame::DrawTemperature(Game* g, float elapsedTime) {
+	int32_t x_pos = g->ScreenWidth() - 80;
+	int32_t y_pos = 25;
+
+	int32_t width = 70 * temperature;
+	if (width > 70)
+		width = 70;
+
+	auto color = olc::GREEN;
+	if (temperature < 0.6f && temperature > 0.3f) {
+		color = olc::YELLOW;
+	}
+	if (temperature >= 0.6f || overheated) {
+		color = olc::RED;
+	}
+
+	g->FillRect(Point(x_pos, y_pos), Point(width, 10), color);
+	g->DrawRect(Point(x_pos, y_pos), Point(70, 10), olc::DARK_RED);
+	g->DrawString(Point(x_pos - 40, y_pos), "Temp");
+	if (overheated) {
+		g->DrawString(Point(x_pos, y_pos + 15), "Overheat");
+	}
+}
 
 void MainGame::CreateRandomAsteroids(Game* g, int num) {
 	srand(time(NULL));
@@ -179,7 +227,7 @@ void MainGame::CheckAsteroidsCollision(Game* g) {
 			||
 			util::IsPointInsideCircle(shipLeftX, shipLeftY, a.currentX, a.currentY, a.radius);
 
-		if (isShipInsideAsteroid)
+		if (isShipInsideAsteroid && !cooldown)
 			HandleShipCollision(g);
 
 		CheckAsteroidCollision(i);
@@ -238,7 +286,7 @@ void MainGame::DrawHearts(Game* g) {
 	for (int i = 1; i < maxLives + 1; i++) {
 		int32_t x_pos = g->ScreenWidth() - x_offset;
 		x_offset += 16;
-		if (i < lostLives) { // drawing dead heart
+		if (i <= lostLives) { // drawing dead heart
 			g->DrawPartialSprite(Point(x_pos, y_pos), hearts, Point(0, 0), Point(16, 16));
 		}
 		else { // drawing healthy heart
@@ -250,5 +298,11 @@ void MainGame::DrawHearts(Game* g) {
 }
 
 void MainGame::ResetShip(Game* g) {
-
+	cooldown = true;
+	ship.posx = g->ScreenWidth() / 2;
+	ship.posy = g->ScreenHeight() / 2;
+	ship.vx = 0;
+	ship.vy = 0;
+	ship.rotation = 0;
+	temperature = 0.0f;
 }
