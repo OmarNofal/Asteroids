@@ -53,6 +53,7 @@ void MainGame::Draw(Game* g, float elapsedTime) {
 	DrawAsteriods(g, elapsedTime);
 	DrawTemperature(g, elapsedTime);
 	DrawHearts(g);
+	DrawScore(g);
 };
 
 void MainGame::HandleEvents(Game* g, float elapsedTime) {
@@ -102,9 +103,8 @@ void MainGame::DrawShip(Game* g, float elapsedTime) {
 	// cooldown animation
 	int cooldownInt = cooldownTime;
 	float rangeStart = (float)cooldownInt + 0.5;
-	if (cooldown && cooldownTime < rangeStart) return;
+	if (cooldown && cooldownTime < rangeStart) return; //don't draw
 
-	// Midpoint
 	Point head(ship.getHead());
 	Point left(ship.getLeft());
 	Point right(ship.getRight());
@@ -155,22 +155,28 @@ void MainGame::CreateRandomAsteroids(Game* g, int num) {
 	}
 };
 
+void MainGame::DrawScore(Game* g) {
+	int32_t x_pos = 10;
+	int32_t y_pos = 10;
+	std::string s = "Score: " + std::to_string(score);
+	g->DrawString(Point(x_pos, y_pos), s);
+};
 
 void MainGame::DrawBullets(Game* g, float elapsedTime) {
-	const auto& r = std::remove_if(bullets.begin(), bullets.end(), 
+	const auto& r = std::remove_if(bullets.begin(), bullets.end(),
 		[this, g](Bullet& b) {
 			return (b.posx > g->ScreenWidth() || b.posx < 0.0f)
 				||
 				(b.posy > g->ScreenHeight() || b.posy < 0.0f);
 		});
-		
+
 	bullets.erase(r, bullets.end());
 
 	for (Bullet& b : bullets) {
 		g->FillCircle(olc::vi2d(b.posx, b.posy), b.radius);
 		b.move(elapsedTime);
 	}
-}
+};
 
 void MainGame::DrawAsteriods(Game* g, float elapsedTime) {
 	for (Asteroid& a : asteroids) {
@@ -197,7 +203,7 @@ void MainGame::DrawAsteriods(Game* g, float elapsedTime) {
 			g->DrawLine(p1, p2, olc::RED);
 		}
 	}
-}
+};
 
 
 void MainGame::CheckAsteroidsCollision(Game* g) {
@@ -238,7 +244,7 @@ void MainGame::CheckAsteroidsCollision(Game* g) {
 void MainGame::HandleShipCollision(Game* g) {
 	currentLives -= 1;
 	ResetShip(g);
-}
+};
 
 void MainGame::CheckAsteroidCollision(size_t a_index) {
 	for (size_t i = 0; i < bullets.size(); i++) {
@@ -252,7 +258,7 @@ void MainGame::CheckAsteroidCollision(size_t a_index) {
 			return;
 		}
 	}
-}
+};
 
 void MainGame::HandleAsteroidCollision(size_t a_index) {
 	Asteroid& a = asteroids[a_index];
@@ -265,13 +271,16 @@ void MainGame::HandleAsteroidCollision(size_t a_index) {
 		float maxRadius = radius / 2.0f;
 		float n1_radius = util::RandomFloat(minRadius, maxRadius);
 		float n2_radius = util::RandomFloat(minRadius, maxRadius);
-		Asteroid n1{20, n1_radius, x, y};
-		Asteroid n2{20, n2_radius, x, y};
+		Asteroid n1{ 20, n1_radius, x, y };
+		Asteroid n2{ 20, n2_radius, x, y };
 		asteroids.push_back(n1);
 		asteroids.push_back(n2);
 	}
+
+	score += 400 / radius;
 	asteroids.erase(asteroids.begin() + a_index);
-}
+};
+
 
 
 void MainGame::DrawHearts(Game* g) {
@@ -279,7 +288,7 @@ void MainGame::DrawHearts(Game* g) {
 	g->SetPixelMode(olc::Pixel::MASK); // for transparency
 
 	int lostLives = maxLives - currentLives;
-	
+
 	int x_offset = 20; // offset from right of the screen
 	int32_t y_pos = 5;
 
@@ -295,7 +304,7 @@ void MainGame::DrawHearts(Game* g) {
 	}
 
 	g->SetPixelMode(olc::Pixel::NORMAL);
-}
+};
 
 void MainGame::ResetShip(Game* g) {
 	cooldown = true;
@@ -305,4 +314,4 @@ void MainGame::ResetShip(Game* g) {
 	ship.vy = 0;
 	ship.rotation = 0;
 	temperature = 0.0f;
-}
+};

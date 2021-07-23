@@ -26,8 +26,10 @@ private: // members
 	bool cooldown = true;
 	double cooldownTime = 0.0f; // time since cooldown
 
-	double temperature = 0.0f;
+	double temperature = 0.0f; // 0-1
 	bool overheated = false;
+
+	int score = 0;
 
 public:
 	MainGame();
@@ -54,6 +56,7 @@ private: // methods
 	void DrawHearts(Game* g);
 	void ResetShip(Game* g);
 	void DrawTemperature(Game* g, float elaspedTime);
+	void DrawScore(Game* g);
 };
 
 
