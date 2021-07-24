@@ -3,20 +3,23 @@
 #include "Util.h"
 #include <iostream>
 #include <time.h>
+#include <string>
 
+#define __USE_MATH_DEFINES
+#include <cmath>
 
 MainGame::MainGame() {
 	srand(time(NULL));
 };
 
 void MainGame::Init(Game* g) {
-	srand(time(NULL));
 
 	ship.posx = g->ScreenWidth() / 2;
 	ship.posy = g->ScreenHeight() / 2;
 
 	// Load sprites
 	hearts = new olc::Sprite("./data/HeartSprite.png");
+	targetSprite = new olc::Sprite("./data/TargetSprite.png");
 
 	CreateRandomAsteroids(g);
 };
@@ -43,6 +46,8 @@ void MainGame::Update(Game* g, float elapsedTime) {
 		}
 	}
 
+	score +=  2.0 * (double) elapsedTime;
+
 	CheckAsteroidsCollision(g);
 };
 
@@ -54,6 +59,8 @@ void MainGame::Draw(Game* g, float elapsedTime) {
 	DrawTemperature(g, elapsedTime);
 	DrawHearts(g);
 	DrawScore(g);
+	DrawHeatseekerTarget(g);
+	DrawHeatseekerMessage(g, elapsedTime);
 };
 
 void MainGame::HandleEvents(Game* g, float elapsedTime) {
@@ -65,7 +72,9 @@ void MainGame::HandleEvents(Game* g, float elapsedTime) {
 			pos.x, 
 			pos.y, 
 			(140) * sin(ship.rotation), 
-			(140) * cos(ship.rotation)
+			(140) * cos(ship.rotation),
+			1.0f,
+			targetedAsteroid
 		);
 		bullets.push_back(b);
 		temperature += 0.25;
@@ -73,11 +82,18 @@ void MainGame::HandleEvents(Game* g, float elapsedTime) {
 	}
 	if (g->GetKey(olc::Key::LEFT).bHeld) {
 		ship.rotation += 140.0f * ship.rotationSpeed * elapsedTime;
+		if (ship.rotation > 2 * 3.14159)
+			ship.rotation -= 2 * 3.14159;
 	}
 	else if (g->GetKey(olc::Key::RIGHT).bHeld) {
 		ship.rotation -= 140.0f * ship.rotationSpeed * elapsedTime;
+		if (ship.rotation < 0)
+			ship.rotation += 2 * 3.14159;
 	}
-		
+	
+	if (g->GetKey(olc::Key::H).bPressed)
+		ToggleHeatSeeker(g);
+
 	if (g->GetKey(olc::Key::Z).bPressed) {
 		CreateRandomAsteroids(g);
 	}
@@ -113,6 +129,56 @@ void MainGame::DrawShip(Game* g, float elapsedTime) {
 	g->DrawLine(left, right);
 	g->DrawLine(right, head);
 };
+
+void MainGame::DrawHeatseekerMessage(Game* g, float elapsedTime) {
+	if (heatSeekerMsgTime > 2.0f) {
+		return;
+	}
+	heatSeekerMsgTime += elapsedTime;
+	std::string s = heatSeekerEnabled ? "Heatseeker enabled" : "Heatseeker disabled";
+	g->DrawString(Point(g->ScreenWidth() / 2 - 70, g->ScreenHeight() / 2 + 80), s);
+}
+
+void MainGame::DrawHeatseekerTarget(Game* g) {
+	if (!heatSeekerEnabled) return;
+	g->SetPixelMode(olc::Pixel::MASK);
+	Point head(ship.getHead());
+	float hx = head.x;
+	float hy = head.y;
+
+	targetedAsteroid = nullptr;
+	float distance = 10000000000.0f;
+
+	for (int i = 0; i < asteroids.size(); ++i) {
+
+		Asteroid* a = &asteroids[i];
+		float ax = a->currentX;
+		float ay = a->currentY;
+		float r = a->radius;
+
+		float shortestDistance = std::abs(
+			sqrt((hx - ax) * (hx - ax) + (hy - ay) * (hy - ay)) - r
+		);
+
+		if (shortestDistance > targetingRadius) continue;
+
+		Point v1 = head - (ship.getLeft() + ship.getRight()) / 2;
+		Point v2 = -head + Point(ax, ay);
+		double angle = util::Angle2V(v1, v2);
+
+		if (shortestDistance > distance) continue;
+
+		distance = shortestDistance;
+
+		if (angle < targetingAngle / 2.0f && angle > -targetingAngle / 2.0f) { // target locked
+			targetedAsteroid = a;
+		}
+	}
+	if (targetedAsteroid != nullptr) {
+		g->DrawSprite(Point(targetedAsteroid->currentX - 4, targetedAsteroid->currentY - 4), targetSprite);
+	}
+	g->SetPixelMode(olc::Pixel::NORMAL);
+}
 
 void MainGame::DrawTemperature(Game* g, float elapsedTime) {
 	int32_t x_pos = g->ScreenWidth() - 80;
@@ -158,7 +224,7 @@ void MainGame::CreateRandomAsteroids(Game* g, int num) {
 void MainGame::DrawScore(Game* g) {
 	int32_t x_pos = 10;
 	int32_t y_pos = 10;
-	std::string s = "Score: " + std::to_string(score);
+	std::string s = "Score: " + std::to_string((long long) score);
 	g->DrawString(Point(x_pos, y_pos), s);
 };
 
@@ -173,7 +239,8 @@ void MainGame::DrawBullets(Game* g, float elapsedTime) {
 	bullets.erase(r, bullets.end());
 
 	for (Bullet& b : bullets) {
-		g->FillCircle(olc::vi2d(b.posx, b.posy), b.radius);
+		olc::Pixel color = b.target == nullptr ? olc::WHITE : olc::RED;
+		g->FillCircle(olc::vi2d(b.posx, b.posy), b.radius, color);
 		b.move(elapsedTime);
 	}
 };
@@ -315,3 +382,8 @@ void MainGame::ResetShip(Game* g) {
 	ship.rotation = 0;
 	temperature = 0.0f;
 };
+
+void MainGame::ToggleHeatSeeker(Game* g) {
+	heatSeekerEnabled = !heatSeekerEnabled;
+	heatSeekerMsgTime = 0.0f;
+}

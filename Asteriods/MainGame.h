@@ -19,7 +19,6 @@ private: // members
 	std::vector<Asteroid> asteroids;
 
 	olc::Sprite* hearts = nullptr;
-
 	int currentLives = 5;
 	int maxLives = 5;
 
@@ -29,7 +28,14 @@ private: // members
 	double temperature = 0.0f; // 0-1
 	bool overheated = false;
 
-	int score = 0;
+	double score = 0;
+
+	olc::Sprite* targetSprite = nullptr;
+	bool heatSeekerEnabled = false;
+	double heatSeekerMsgTime = 0.0f;
+	Asteroid* targetedAsteroid = nullptr; // asteroid marked by heatseeker missile
+	double targetingAngle = 3.14159265358979323846 / 4.0f;
+	double targetingRadius = 250.0f;
 
 public:
 	MainGame();
@@ -49,7 +55,7 @@ private: // methods
 	void DrawShip(Game* g, float elapsedTime);
 	void DrawBullets(Game* g, float elpasedTime);
 	void DrawAsteriods(Game* g, float elapsedTime);
-	void CreateRandomAsteroids(Game* g, int num = 4);
+	void CreateRandomAsteroids(Game* g, int num = 1);
 	void HandleShipCollision(Game* g);
 	void CheckAsteroidCollision(size_t index);
 	void HandleAsteroidCollision(size_t index);
@@ -57,6 +63,10 @@ private: // methods
 	void ResetShip(Game* g);
 	void DrawTemperature(Game* g, float elaspedTime);
 	void DrawScore(Game* g);
+	void DrawHeatseekerTarget(Game* g);
+	void ToggleHeatSeeker(Game* g);
+	void DrawHeatseekerMessage(Game* g, float elapsedTime);
+	void CheckGameOver(Game* g);
 };
 
 
