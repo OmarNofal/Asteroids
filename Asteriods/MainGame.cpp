@@ -4,6 +4,8 @@
 #include <iostream>
 #include <time.h>
 #include <string>
+#include <fstream>
+
 
 #define __USE_MATH_DEFINES
 #include <cmath>
@@ -13,7 +15,6 @@ MainGame::MainGame() {
 };
 
 void MainGame::Init(Game* g) {
-
 	ship.posx = g->ScreenWidth() / 2;
 	ship.posy = g->ScreenHeight() / 2;
 
@@ -45,25 +46,29 @@ void MainGame::Update(Game* g, float elapsedTime) {
 			cooldownTime = 0.0f;
 		}
 	}
-
-	score +=  2.0 * (double) elapsedTime;
+	
+	score +=  2.0 * (double) elapsedTime; //points for surviving
 
 	CheckAsteroidsCollision(g);
+	CheckGameOver(g, elapsedTime);
 };
 
 void MainGame::Draw(Game* g, float elapsedTime) {
 	g->Clear(olc::VERY_DARK_BLUE);
-	DrawShip(g, elapsedTime);
-	DrawBullets(g, elapsedTime);
-	DrawAsteriods(g, elapsedTime);
+
+	DrawAsteriods(g, elapsedTime); 
 	DrawTemperature(g, elapsedTime);
 	DrawHearts(g);
 	DrawScore(g);
+	if (currentLives <= 0) return;
+	DrawShip(g, elapsedTime);
+	DrawBullets(g, elapsedTime);
 	DrawHeatseekerTarget(g);
 	DrawHeatseekerMessage(g, elapsedTime);
 };
 
 void MainGame::HandleEvents(Game* g, float elapsedTime) {
+	if (currentLives <= 0) return;
 	if (g->GetKey(olc::Key::SPACE).bPressed && !overheated) {
 		
 		auto pos(ship.getHead());
@@ -248,7 +253,6 @@ void MainGame::DrawBullets(Game* g, float elapsedTime) {
 void MainGame::DrawAsteriods(Game* g, float elapsedTime) {
 	for (Asteroid& a : asteroids) {
 		a.updatePoints(0, 0, elapsedTime);
-		g->Draw(a.currentX, a.currentY);
 		//g->WrapCoordinates(a.currentX, a.currentY, a.currentX, a.currentY);
 		for (size_t i = 0; i < a.points.size(); ++i) {
 			float x1 = a.currentX + a.points[i].first; // get absolute position
@@ -386,4 +390,26 @@ void MainGame::ResetShip(Game* g) {
 void MainGame::ToggleHeatSeeker(Game* g) {
 	heatSeekerEnabled = !heatSeekerEnabled;
 	heatSeekerMsgTime = 0.0f;
-}
+};
+
+void MainGame::CheckGameOver(Game* g, float elapsedTime) {
+	if (currentLives > 0)
+		return;
+	gameOverTime += elapsedTime;
+	g->DrawString(Point(g->ScreenWidth() / 2 - 40, g->ScreenHeight() / 2), "Game Over");
+	if (gameOverTime > 2.0f) {
+		SaveNewScore();
+		g->PopState();
+	}
+};
+
+void MainGame::SaveNewScore() {
+	std::ofstream s("./scores.txt", std::ios_base::app);
+	if (s.bad()) {
+		std::cout << "couldn't save the score" << std::endl;
+		return;
+	}
+	std::string line = std::to_string((long long)score) + '\n';
+	s.write(line.c_str(), line.size());
+	s.close();
+};

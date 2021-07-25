@@ -27,7 +27,7 @@ namespace util {
 	};
 
 	/*
-	* Returns angle between 2 vectors in radians.
+	 Returns angle between 2 vectors in radians.
 	*/
 	static double Angle2V(const Point& v1, const Point& v2) {
 		double dot_product = (double)v1.x * v2.x + (double) v1.y * v2.y;

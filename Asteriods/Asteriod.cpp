@@ -17,11 +17,11 @@ currentY(startY)
 
 {
 	
-	vx = util::RandomFloat(-30.0, 30.0);
-	vy = util::RandomFloat(-30.0, 30.0);
+	vx = util::RandomFloat(-100.0, 100.0);
+	vy = util::RandomFloat(-100.0, 100.0);
 
 	for (int i = 0; i < numberOfPoints; ++i) {
-		int pointRadius = util::RandomFloat(radius - 0.4, radius + 0.4);
+		int pointRadius = util::RandomFloat(radius - 2, radius + 2);
 		float angle = 2 * M_PI * i / numberOfPoints;
 		float x =  cos(angle) * pointRadius;
 		float y =  sin(angle) * pointRadius * -1;

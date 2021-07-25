@@ -11,7 +11,7 @@
 #include "Game.h"
 #include "MainGame.h"
 #include "GameState.h"
-
+#include "MainMenu.h"
 
 Game::Game() {
 	sAppName = "Asteroids";
@@ -19,16 +19,20 @@ Game::Game() {
 
 bool Game::OnUserCreate() {
 	// Create main menu;
-	MainGame* m = new MainGame();
+	MainMenu* m = new MainMenu();
 	PushState(m);
 	return true;
 }
 
 bool Game::OnUserUpdate(float elapsedTime) {
+	if (states.size() == 0)
+		return false;
 	GameState* s = states.back();
 	s->HandleEvents(this, elapsedTime);
-	s->Update(this, elapsedTime);
+	if (states.size() == 0) return false;
 	s->Draw(this, elapsedTime);
+	if (states.size() == 0) return false;
+	s->Update(this, elapsedTime);
 	return true;
 }
 
