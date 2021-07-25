@@ -366,3 +366,4 @@ FodyWeavers.xsd
 ./Debug
 ./x64
 ./.vs
+scores.txt

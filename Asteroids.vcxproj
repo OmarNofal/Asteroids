@@ -148,7 +148,6 @@
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="olcPixelGameEngine.h" />
     <ClCompile Include="Ship.cpp" />
-    <ClCompile Include="Solution.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Asteriod.h" />
@@ -157,7 +156,6 @@
     <ClInclude Include="GameState.h" />
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="MainMenu.h" />
-    <ClInclude Include="olcConsoleGameEngine.h" />
     <ClInclude Include="Ship.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
