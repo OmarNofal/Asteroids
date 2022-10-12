@@ -11,4 +11,4 @@
 ### Screenshots
 ![Main Menu](screens/main.jpg?raw=true)
 ![Gameplay](screens/gameplay.jpg?raw=true)
-![Heat Seeking](screens/heatseeking.jpg?raw=true)
+![Heat Seeking](screens/heatseeker.jpg?raw=true)
